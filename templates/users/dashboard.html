@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — OptiSlot{% endblock %}
+
+{% block content %}
+
+<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-3 animate-fade-up">
+  <div>
+    <h4>
+      <span class="ph-icon" style="background:var(--primary-light); color:var(--primary)">
+        <i class="bi bi-speedometer2"></i>
+      </span>
+      My Dashboard
+    </h4>
+    <p>Your profile, choices, and allotment result at a glance</p>
+  </div>
+  <a href="{% url 'submit_choices' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-pencil-square"></i> Edit Choices
+  </a>
+</div>
+
+<div class="row g-4">
+
+  <!-- Profile -->
+  <div class="col-lg-4 animate-fade-up stagger-1">
+    <div class="card p-4 h-100">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="profile-avatar">
+          {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+        </div>
+        <div>
+          <div style="font-weight:700; font-size:1.0625rem; color:var(--text);">
+            {{ user.get_full_name }}
+          </div>
+          <div style="color:var(--muted); font-size:.8125rem;">@{{ user.username }}</div>
+        </div>
+      </div>
+
+      <div style="background:var(--surface-2); border-radius:var(--radius-sm); padding:.875rem 1rem;">
+        <div class="info-row">
+          <span class="label">USN</span>
+          <span class="value mono">{{ user.usn }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">CGPA</span>
+          <span class="value" style="color:var(--primary); font-size:1rem;">
+            {{ user.cgpa }} <span style="color:var(--muted); font-weight:400; font-size:.8rem;">/ 10.0</span>
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="label">Registered</span>
+          <span class="value" style="font-size:.8125rem;">{{ user.date_joined|date:"d M Y" }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Choices -->
+  <div class="col-lg-4 animate-fade-up stagger-2">
+    <div class="card p-4 h-100">
+      <div class="section-title"><i class="bi bi-list-ol"></i> My Choices</div>
+      {% if choices %}
+        <div class="d-flex flex-column gap-2">
+          {% for choice in choices %}
+          <div class="choice-item">
+            <span class="priority-badge priority-{{ choice.priority }}">{{ choice.priority }}</span>
+            <div style="min-width:0;">
+              <div style="font-weight:600; font-size:.9rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                {{ choice.elective.name }}
+              </div>
+              <div class="mono" style="color:var(--muted); font-size:.75rem;">{{ choice.elective.code }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <div style="margin-top:1rem; font-size:.775rem; color:var(--muted-light);">
+          <i class="bi bi-clock me-1"></i>
+          Last updated {{ choices.0.submitted_at|date:"d M Y, H:i" }}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <p>No choices submitted yet</p>
+          <a href="{% url 'submit_choices' %}" class="btn btn-primary btn-sm mt-3">
+            <i class="bi bi-plus-lg"></i> Submit Now
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="col-lg-4 animate-fade-up stagger-3">
+    <div class="card p-4 h-100">
+      <div class="section-title"><i class="bi bi-award-fill"></i> Allotment Result</div>
+      {% if allotment %}
+        <div class="result-banner allotted">
+          <div class="result-banner-icon">🎉</div>
+          <div>
+            <div style="font-weight:700; color:#065f46; font-size:.8125rem; text-transform:uppercase; letter-spacing:.05em;">Allotted</div>
+            <div style="font-weight:800; color:#064e3b; font-size:1.0625rem; margin-top:.2rem; line-height:1.3;">
+              {{ allotment.elective.name }}
+            </div>
+            <div class="mono" style="font-size:.75rem; color:#047857; margin-top:.2rem;">{{ allotment.elective.code }}</div>
+          </div>
+        </div>
+        <div style="color:var(--muted-light); font-size:.75rem; margin-top:.875rem; text-align:right;">
+          <i class="bi bi-clock me-1"></i>{{ allotment.allotted_at|date:"d M Y, H:i" }}
+        </div>
+      {% else %}
+        <div class="result-banner pending">
+          <div class="result-banner-icon">⏳</div>
+          <div>
+            <div style="font-weight:700; color:#92400e; font-size:.8125rem; text-transform:uppercase; letter-spacing:.05em;">Pending</div>
+            <div style="font-size:.875rem; color:#78350f; margin-top:.2rem; line-height:1.4;">
+              Allotment hasn't been run yet. Check back soon.
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Live Seat Counter -->
+<div class="mt-5 animate-fade-up stagger-4">
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <div class="section-title mb-0" style="flex:1"><i class="bi bi-activity"></i> Live Seat Availability</div>
+    <span class="live-dot"></span>
+    <span style="font-size:.75rem; color:var(--muted); font-weight:500;">Updates every 5s</span>
+  </div>
+  <div class="table-card">
+    <div id="seat-table-container" style="min-height:120px;">
+      <div class="empty-state" style="padding:2.5rem;">
+        <div class="spinner-border spinner-border-sm mb-2"></div>
+        <p style="font-size:.8125rem;">Loading seat data...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function renderSeats(data) {
+    const rows = data.map(e => `
+      <tr>
+        <td><span class="mono badge-purple badge">${e.code}</span></td>
+        <td style="font-weight:500; color:var(--text)">${e.name}</td>
+        <td style="text-align:center; color:var(--muted)">${e.total_seats}</td>
+        <td style="text-align:center; font-weight:700; color:var(--text)">${e.available_seats}</td>
+        <td style="width:130px; padding-right:1.5rem">
+          <div class="seat-bar">
+            <div class="seat-bar-fill ${e.status}" style="width:${e.fill_percentage}%"></div>
+          </div>
+        </td>
+        <td>
+          <span class="badge badge-${e.status}">
+            ${e.status === 'red' ? 'Full' : e.status === 'yellow' ? 'Filling Fast' : 'Available'}
+          </span>
+        </td>
+      </tr>`).join('');
+
+    document.getElementById('seat-table-container').innerHTML = `
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Code</th><th>Elective</th>
+              <th style="text-align:center">Total</th>
+              <th style="text-align:center">Available</th>
+              <th>Fill</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  async function pollSeats() {
+    try {
+      const res = await fetch('/api/electives/');
+      if (res.ok) renderSeats(await res.json());
+    } catch(e) {}
+  }
+
+  pollSeats();
+  setInterval(pollSeats, 5000);
+</script>
+{% endblock %}

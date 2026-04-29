@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Revert Allotment — OptiSlot{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="danger-zone-card card animate-fade-up">
+
+    <div class="danger-icon-wrap">
+      <i class="bi bi-arrow-counterclockwise"></i>
+    </div>
+
+    <h2 style="font-size:1.5rem; font-weight:800; color:var(--danger); text-align:center; margin-bottom:.625rem;">
+      Revert Allotment?
+    </h2>
+    <p style="text-align:center; color:var(--muted); font-size:.875rem; line-height:1.6; margin-bottom:.5rem;">
+      This will permanently delete
+      <strong style="color:var(--danger);">{{ allotment_count }} allotment record{{ allotment_count|pluralize }}</strong>
+      and reset all elective seat counts back to their totals.
+    </p>
+    <p style="text-align:center; color:var(--muted-light); font-size:.8125rem; margin-bottom:2rem;">
+      <i class="bi bi-info-circle me-1"></i>
+      Student choices will <strong>not</strong> be affected — you can re-run allotment immediately after.
+    </p>
+
+    <div class="d-flex gap-3">
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary w-50 btn-lg">
+        <i class="bi bi-arrow-left"></i> Cancel
+      </a>
+      <form method="post" class="w-50">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger w-100 btn-lg">
+          <i class="bi bi-trash3-fill"></i> Yes, Revert
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

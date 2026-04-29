@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}OptiSlot{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'bootstrap-icons.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'custom.css' %}" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'home' %}">
+      <div class="brand-icon"><i class="bi bi-grid-3x3-gap-fill"></i></div>
+      OptiSlot
+    </a>
+    <button class="navbar-toggler border-0 shadow-none" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navMenu"
+            style="color:var(--muted)">
+      <i class="bi bi-list" style="font-size:1.4rem"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1 mt-2 mt-lg-0">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'elective_list' %}">
+              <i class="bi bi-journal-bookmark"></i> Electives
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'submit_choices' %}">
+              <i class="bi bi-check2-square"></i> My Choices
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard' %}">
+              <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+          </li>
+          {% if user.is_staff %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin_dashboard' %}">
+              <i class="bi bi-shield-lock"></i> Admin
+            </a>
+          </li>
+          {% endif %}
+          <li class="nav-item ms-lg-2">
+            <a class="btn-nav-ghost" href="{% url 'logout' %}">
+              <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Sign In</a>
+          </li>
+          <li class="nav-item ms-lg-2">
+            <a class="btn-nav-cta" href="{% url 'register' %}">
+              <i class="bi bi-person-plus"></i> Get Started
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show animate-fade-up mt-2" role="alert">
+      <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill
+                   {% elif message.tags == 'warning' %}bi-exclamation-triangle-fill
+                   {% elif message.tags == 'danger' or message.tags == 'error' %}bi-x-circle-fill
+                   {% else %}bi-info-circle-fill{% endif %}"></i>
+      <span>{{ message }}</span>
+      <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" style="padding:.5rem"></button>
+    </div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer>
+  <div class="container">
+    <span style="font-weight:600; color:var(--text-2)">OptiSlot</span>
+    <span style="margin:0 .5rem; color:var(--border)">·</span>
+    Priority-Based Elective Allocation System
+    <span style="margin:0 .5rem; color:var(--border)">·</span>
+    &copy; 2025
+  </div>
+</footer>
+
+<script src="{% static 'bootstrap.bundle.min.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

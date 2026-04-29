@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Create Account — OptiSlot{% endblock %}
+
+{% block content %}
+<div class="auth-page" style="align-items:flex-start; padding-top:2.5rem; padding-bottom:2.5rem;">
+  <div class="auth-card card animate-fade-up" style="max-width:520px;">
+
+    <div class="auth-logo">
+      <i class="bi bi-person-plus-fill"></i>
+    </div>
+    <h1 class="auth-title">Create account</h1>
+    <p class="auth-subtitle">Join OptiSlot to select your electives</p>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="row g-3">
+        {% for field in form %}
+          <div class="{% if field.name == 'username' or field.name == 'email' %}col-12{% else %}col-sm-6{% endif %}">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+              <div class="form-text">{{ field.help_text }}</div>
+            {% endif %}
+            {% if field.errors %}
+              <div style="color:var(--danger); font-size:.78rem; margin-top:.3rem; display:flex; align-items:center; gap:.3rem;">
+                <i class="bi bi-exclamation-circle-fill"></i> {{ field.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 btn-lg mt-4">
+        <i class="bi bi-person-check-fill"></i> Create Account
+      </button>
+    </form>
+
+    <div class="auth-divider">or</div>
+    <p class="auth-footer">
+      Already have an account? <a href="{% url 'login' %}">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

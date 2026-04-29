@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard — OptiSlot{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-3 animate-fade-up">
+  <div>
+    <h4>
+      <span class="ph-icon" style="background:var(--danger-light); color:var(--danger)">
+        <i class="bi bi-shield-lock-fill"></i>
+      </span>
+      Admin Dashboard
+    </h4>
+    <p>Manage allotments, view results, and export data</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <form method="post" action="{% url 'run_allotment' %}"
+          onsubmit="return confirm('Run allotment? This will overwrite any existing results.')">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">
+        <i class="bi bi-play-circle-fill"></i> Run Allotment
+      </button>
+    </form>
+    {% if allotment_count %}
+    <a href="{% url 'revert_allotment' %}" class="btn btn-outline-warning">
+      <i class="bi bi-arrow-counterclockwise"></i> Revert
+    </a>
+    {% endif %}
+    <a href="{% url 'export_csv' %}" class="btn btn-success">
+      <i class="bi bi-download"></i> Export CSV
+    </a>
+  </div>
+</div>
+
+<!-- Stat cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3 animate-fade-up stagger-1">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--primary-light); color:var(--primary)">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <div>
+        <div class="stat-value" style="color:var(--primary)">{{ student_count }}</div>
+        <div class="stat-label">Total Students</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3 animate-fade-up stagger-2">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--success-light); color:var(--success)">
+        <i class="bi bi-award-fill"></i>
+      </div>
+      <div>
+        <div class="stat-value" style="color:var(--success)">{{ allotment_count }}</div>
+        <div class="stat-label">Allotted</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3 animate-fade-up stagger-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--warning-light); color:var(--warning)">
+        <i class="bi bi-list-check"></i>
+      </div>
+      <div>
+        <div class="stat-value" style="color:var(--warning)">{{ choices|length }}</div>
+        <div class="stat-label">Total Choices</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3 animate-fade-up stagger-4">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--danger-light); color:var(--danger)">
+        <i class="bi bi-person-x-fill"></i>
+      </div>
+      <div>
+        <div class="stat-value" style="color:var(--danger)">{{ student_count|add:"-0" }}</div>
+        <div class="stat-label">Unallotted</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Allotment results table -->
+<div class="table-card mb-4 animate-fade-up">
+  <div class="table-card-header">
+    <div class="table-card-title">
+      <i class="bi bi-award-fill" style="color:var(--success)"></i>
+      Allotment Results
+      {% if allotment_count %}
+        <span class="badge badge-purple ms-1">{{ allotment_count }}</span>
+      {% endif %}
+    </div>
+  </div>
+  {% if allotments %}
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th>#</th><th>Student</th><th>USN</th><th>CGPA</th>
+            <th>Elective</th><th>Code</th><th>Allotted At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in allotments %}
+          <tr>
+            <td style="color:var(--muted-light); font-size:.8rem;">{{ forloop.counter }}</td>
+            <td style="font-weight:600; color:var(--text)">{{ a.student.get_full_name }}</td>
+            <td><span class="mono" style="color:var(--muted); font-size:.8125rem;">{{ a.student.usn }}</span></td>
+            <td><span class="badge badge-purple">{{ a.student.cgpa }}</span></td>
+            <td style="font-weight:500">{{ a.elective.name }}</td>
+            <td><span class="mono badge badge-blue">{{ a.elective.code }}</span></td>
+            <td style="color:var(--muted); font-size:.8rem;">{{ a.allotted_at|date:"d M Y, H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="bi bi-inbox"></i>
+      <p>No allotments yet. Click <strong>Run Allotment</strong> to start.</p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Students & choices table -->
+<div class="table-card animate-fade-up">
+  <div class="table-card-header">
+    <div class="table-card-title">
+      <i class="bi bi-people-fill" style="color:var(--primary)"></i>
+      Students &amp; Choices
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>#</th><th>Name</th><th>USN</th><th>CGPA</th>
+          <th>
+            <span class="priority-badge priority-1" style="width:20px;height:20px;font-size:.65rem;border-radius:5px;">1</span>
+            Choice 1
+          </th>
+          <th>
+            <span class="priority-badge priority-2" style="width:20px;height:20px;font-size:.65rem;border-radius:5px;">2</span>
+            Choice 2
+          </th>
+          <th>
+            <span class="priority-badge priority-3" style="width:20px;height:20px;font-size:.65rem;border-radius:5px;">3</span>
+            Choice 3
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+        <tr>
+          <td style="color:var(--muted-light); font-size:.8rem;">{{ forloop.counter }}</td>
+          <td style="font-weight:600; color:var(--text)">{{ student.get_full_name }}</td>
+          <td><span class="mono" style="color:var(--muted); font-size:.8125rem;">{{ student.usn }}</span></td>
+          <td><span class="badge badge-purple">{{ student.cgpa }}</span></td>
+          {% with cl=student.choices.all %}
+            <td>{% for c in cl %}{% if c.priority == 1 %}<span class="mono badge badge-blue">{{ c.elective.code }}</span>{% endif %}{% endfor %}</td>
+            <td>{% for c in cl %}{% if c.priority == 2 %}<span class="mono badge badge-blue">{{ c.elective.code }}</span>{% endif %}{% endfor %}</td>
+            <td>{% for c in cl %}{% if c.priority == 3 %}<span class="mono badge badge-blue">{{ c.elective.code }}</span>{% endif %}{% endfor %}</td>
+          {% endwith %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7">
+            <div class="empty-state" style="padding:2rem;">
+              <p>No students registered yet.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
