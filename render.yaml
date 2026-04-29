@@ -2,6 +2,7 @@ services:
   - type: web
     name: optislot
     env: python
+    rootDir: optislot
     buildCommand: "./build.sh"
     startCommand: "gunicorn optislot.wsgi:application"
     envVars:
